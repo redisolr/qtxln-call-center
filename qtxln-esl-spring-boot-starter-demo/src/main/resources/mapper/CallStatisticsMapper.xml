@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qtxln.mapper.CallStatisticsMapper">
+
+  <select id="countInBoundByAgent" resultType="com.qtxln.model.entity.statistics.InBoundCount">
+    SELECT
+      COUNT(*) in_bound_total,
+      COUNT(IF(hangup_cause_str = '正常',1,NULL)) AS connected_total,
+      COUNT(IF(hangup_cause_str != '正常',1,NULL)) AS not_connected_total
+    FROM
+      `call_bill`
+    WHERE
+      called_number = #{agent}
+      AND call_type = '呼入'
+  </select>
+
+  <select id="countOutBoundByAgent" resultType="com.qtxln.model.entity.statistics.OutBoundCount">
+    SELECT
+      COUNT(*) out_bound_total,
+      COUNT(IF(hangup_cause_str = '正常',1,NULL)) AS connected_total,
+      COUNT(IF(hangup_cause_str != '正常',1,NULL)) AS not_connected_total
+    FROM
+      `call_bill`
+    WHERE
+      agent = #{agent}
+      AND call_type = '呼出';
+  </select>
+
+  <select id="countCallTime" resultType="com.qtxln.model.entity.statistics.CallTime">
+    SELECT
+      SUM( total_time ) total_time,
+      SUM( talk_time ) talk_time
+    FROM
+      `call_bill`
+    WHERE
+      called_number = #{agent}
+      AND call_type = '呼入'
+      OR ( agent = #{agent} AND call_type = '呼出' );
+  </select>
+
+  <select id="countCallGiveUp" resultType="com.qtxln.model.entity.statistics.CallGiveUp">
+    SELECT
+      COUNT(IF(hangup_cause_str = '振铃放弃',1,NULL)) AS ring_give_up,
+      COUNT(IF(hangup_cause_str = '坐席放弃',1,NULL)) AS agent_give_up,
+      COUNT(IF(hangup_cause_str = '排队放弃',1,NULL)) AS queue_up_give_up,
+      COUNT(IF(hangup_cause_str = '排队超时',1,NULL)) AS queue_up_timeout
+    FROM
+      `call_bill`
+    WHERE
+      called_number = #{agent} OR (agent IS NULL AND skill_group = #{skillGroup})
+  </select>
+
+</mapper>

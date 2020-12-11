@@ -1,0 +1,3 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.qtxln.esl.spring.boot.starter.config.FreeSwitchEslAutoConfiguration
+

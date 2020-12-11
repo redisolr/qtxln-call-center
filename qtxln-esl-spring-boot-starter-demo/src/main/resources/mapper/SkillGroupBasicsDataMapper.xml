@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qtxln.mapper.SkillGroupBasicsDataMapper">
+
+  <select id="listPageSkillGroupDataOneDay" resultType="com.qtxln.model.entity.SkillGroupBasicsData">
+    SELECT
+      sg.id skill_group_id,
+      sg.skill_group_name,
+      SUM( CASE asr.agent_state WHEN 'not_ready' THEN asr.duration ELSE 0 END ) total_break_time,
+      SUM( CASE asr.agent_state WHEN 'ready' THEN asr.duration ELSE 0 END ) total_ready_time,
+      MAX( CASE asr.agent_state WHEN 'ready' THEN asr.duration ELSE 0 END ) max_ready_time,
+      SUM( CASE asr.agent_state WHEN 'ringing' THEN asr.duration ELSE 0 END ) total_ring_time,
+      SUM( CASE asr.agent_state WHEN 'in_call' THEN asr.duration ELSE 0 END ) total_talk_time,
+      MAX( CASE asr.agent_state WHEN 'in_call' THEN asr.duration ELSE 0 END ) max_talk_time,
+      COUNT( CASE asr.agent_state WHEN 'ready' THEN 1 ELSE NULL END ) ready_count,
+      COUNT( CASE asr.agent_state WHEN 'in_call' THEN 1 ELSE NULL END ) total_calls
+      FROM
+      call_center_skill_group sg
+      LEFT JOIN call_center_skill_group_agent sga ON sga.skill_group_id = sg.id
+      LEFT JOIN agent_state_record asr ON sga.id = asr.agent_id
+    WHERE
+    TO_DAYS( asr.create_time ) = TO_DAYS(NOW())
+      <if test="skillGroupBasicsDataBO.skillGroupName != null">
+        AND sg.skill_group_name like CONCAT('%', #{skillGroupBasicsDataBO.skillGroupName},'%')
+      </if>
+    GROUP BY
+    sg.skill_group_name
+  </select>
+
+</mapper>

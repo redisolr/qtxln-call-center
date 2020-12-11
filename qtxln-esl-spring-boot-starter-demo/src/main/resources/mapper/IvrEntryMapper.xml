@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qtxln.mapper.IvrEntryMapper">
+  <select id="listPageIvrEntry" resultType="com.qtxln.model.entity.IvrEntry">
+    SELECT
+      ie.id,
+      i.ivr_name,
+      ie.type,
+      sd.dic_name type_name,
+      ie.`name`,
+      ie.digits,
+      ie.param
+    FROM
+      ivr_entry ie
+    LEFT JOIN ivr i ON ie.ivr_id = i.id
+    LEFT JOIN sys_dictionary sd ON ie.type = sd.dic_code
+    <where>
+      <if test="ivrEntryBO.name != null">
+        AND ie.name like CONCAT('%', #{ivrEntryBO.name}, '%')
+      </if>
+      <if test="ivrEntryBO.ivrName != null">
+        AND i.ivr_name like CONCAT('%', #{ivrEntryBO.ivrName}, '%')
+      </if>
+      <if test="ivrEntryBO.type != null">
+        AND ie.type = #{ivrEntryBO.type}
+      </if>
+    </where>
+  </select>
+</mapper>

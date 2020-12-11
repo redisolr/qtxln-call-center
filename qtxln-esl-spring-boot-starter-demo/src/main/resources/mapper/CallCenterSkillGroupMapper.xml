@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qtxln.mapper.CallCenterSkillGroupMapper">
+
+  <select id="listPageSkillGroup" resultType="com.qtxln.model.entity.CallCenterSkillGroup">
+--     SELECT
+--       sg.id,
+--       sg.skill_group_name,
+--       sd.dic_name routing_strategy,
+--       sg.description,
+--       sg.max_wait_time,
+--       sg.discard_abandoned_after,
+--       COUNT( sga.id ) agent_count
+--     FROM
+--       `call_center_skill_group` sg
+--       LEFT JOIN call_center_skill_group_agent sga ON sg.id = sga.skill_group_id
+--       LEFT JOIN sys_dictionary sd ON sg.routing_strategy = sd.dic_code
+      SELECT
+        sg.id,
+        sg.skill_group_name,
+        sd.dic_name routing_strategy,
+        sg.description,
+        sg.max_wait_time,
+        sg.discard_abandoned_after
+      FROM
+        `call_center_skill_group` sg
+      LEFT JOIN sys_dictionary sd ON sg.routing_strategy = sd.dic_code
+      <where>
+        <if test="callCenterSkillGroupBO.skillGroupName != null">
+          AND sg.skill_group_name like CONCAT('%', #{callCenterSkillGroupBO.skillGroupName},'%')
+        </if>
+      </where>
+  </select>
+
+  <select id="queryAll" resultType="com.qtxln.model.entity.CallCenterSkillGroup">
+    SELECT
+      id,
+      skill_group_name
+    FROM
+      `call_center_skill_group`;
+  </select>
+  
+</mapper>

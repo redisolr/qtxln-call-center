@@ -1,0 +1,93 @@
+spring:
+  jackson:
+    default-property-inclusion: non_null
+  mvc:
+    static-path-pattern: /static/**
+  servlet:
+    multipart:
+      max-file-size: 10MB
+  messages:
+    basename: fs-api/commands
+    encoding: utf-8
+  cache:
+    ehcache:
+      config: classpath:ehcache.xml
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    druid:
+      filters: stat
+      initial-size: 30
+      max-active: 300
+      max-pool-prepared-statement-per-connection-size: 20
+      max-wait: 60000
+      min-evictable-idle-time-millis: 100000
+      min-idle: 30
+      pool-prepared-statements: true
+      test-on-borrow: true
+      test-on-return: false
+      test-while-idle: true
+      time-between-eviction-runs-millis: 60000
+      validation-query: SELECT 1 FROM DUAL
+      validation-query-timeout: 60000
+      web-stat-filter:
+        enabled: false
+        session-stat-enable: false
+        session-stat-max-count: 10
+        url-pattern: /*
+    type: com.alibaba.druid.pool.DruidDataSource
+    url: jdbc:mysql://rm-8vb3419geot0335r3qo.mysql.zhangbei.rds.aliyuncs.com/fs?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8
+    username:
+    password:
+com:
+  aegis:
+    free-switch:
+      esl:
+        inbound:
+          defaultPassword: ClueCon
+          performance: false
+          performanceCostTime: 200
+          servers:
+            # 测试
+            - host:
+              password:
+              port:
+              timeoutSeconds: 5
+          events:
+#            - all
+            - CHANNEL_CREATE
+            - CHANNEL_ANSWER
+            - CHANNEL_BRIDGE
+            - CHANNEL_HANGUP_COMPLETE
+            - CHANNEL_HOLD
+            - CHANNEL_UNHOLD
+            - DTMF
+            - RECORD_START
+            - RECORD_STOP
+            - HEARTBEAT
+            - CUSTOM callcenter::info
+
+socket:
+  io:
+    host: 192.168.10.139
+    port: 7890
+    bossCount: 1
+    workCount: 100
+    allow-custom-requests: true
+    # 协议升级超时时间（毫秒），默认10秒。HTTP握手升级为ws协议超时时间
+    upgrade-timeout: 10000
+    # Ping消息超时时间（毫秒），默认60秒，这个时间间隔内没有接收到心跳消息就会发送超时事件
+    ping-timeout: 60000
+    # Ping消息间隔（毫秒），默认25秒。客户端向服务器发送一条心跳消息间隔
+    ping-interval: 25000
+mybatis-plus:
+  mapper-locations: classpath:/mapper/*.xml
+  type-aliases-package: com.aegis.fs.mapper
+  global-config:
+    banner: false
+    db-config:
+      id-type: input
+      update-strategy: not_null
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

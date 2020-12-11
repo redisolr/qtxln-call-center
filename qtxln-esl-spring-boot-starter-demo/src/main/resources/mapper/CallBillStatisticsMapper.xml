@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qtxln.mapper.CallBillStatisticsMapper">
+
+  <select id="callBillStatisticsOneDay" resultType="com.qtxln.model.entity.CallBillStatistics">
+    SELECT
+      COUNT(*) in_coming_line_count,
+      COUNT(
+      IF
+      ( caller_number = '9999' OR skill_group IS NOT NULL, 1, NULL )) AS in_coming_queue_count,
+      COUNT(
+      IF
+      ( hangup_cause_str = '正常' AND skill_group IS NOT NULL, 1, NULL )) AS answered_by_agent_count,
+      COUNT(
+      IF
+      ( call_type = '呼出', 1, NULL )) AS outbound_count,
+      COUNT(
+      IF
+      ( call_type = '呼出' AND hangup_cause_str = '正常', 1, NULL )) AS outbound_answered_count,
+      COUNT(
+      IF
+      ( hangup_cause_str = 'IVR中放弃', 1, NULL )) AS abandoned_in_contact_flow_count,
+      COUNT(
+      IF
+      ( hangup_cause_str = '振铃放弃', 1, NULL )) AS abandoned_by_ring_count,
+      COUNT(
+      IF
+      ( hangup_cause_str = '坐席放弃', 1, NULL )) AS abandoned_by_agent_count,
+      COUNT(
+      IF
+      ( hangup_cause_str = '排队放弃', 1, NULL )) AS abandoned_in_queue_count,
+      COUNT(
+      IF
+      ( hangup_cause_str = '排队超时', 1, NULL )) AS abandoned_in_queue_timeout
+    FROM
+      call_bill
+    WHERE
+      is_effective = 1
+--     WHERE TO_DAYS(asr.create_time) = TO_DAYS(NOW())
+  </select>
+
+
+  <select id="callDistributionByDay" resultType="com.qtxln.model.entity.CallDistribution">
+    SELECT
+      date_format( create_time, '%H' ) call_time,
+      count(*) call_count
+    FROM
+      call_bill
+<!--    <where>-->
+<!--      <if test="startDate == null and endDate == null">-->
+<!--        AND TO_DAYS( create_time ) = TO_DAYS(NOW())-->
+<!--      </if>-->
+<!--      <if test="startDate != null and endDate == null">-->
+<!--        AND create_time > #{startDate}-->
+<!--      </if>-->
+<!--      <if test="startDate == null and endDate != null">-->
+<!--        AND create_time <![CDATA[<]]> #{endDate}-->
+<!--      </if>-->
+<!--      <if test="startDate != null and endDate != null">-->
+<!--        AND create_time BETWEEN #{startDate} AND #{endDate}-->
+<!--      </if>-->
+<!--    </where>-->
+    GROUP BY
+      date_format( create_time, '%H' )
+    ORDER BY
+      call_time;
+  </select>
+
+
+</mapper>

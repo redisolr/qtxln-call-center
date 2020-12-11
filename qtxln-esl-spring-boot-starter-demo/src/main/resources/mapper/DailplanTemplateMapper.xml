@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qtxln.mapper.DailplanTemplateMapper">
+  <select id="listPageDailplanTemplate" resultType="com.qtxln.model.entity.DialplanTemplate">
+    SELECT
+      dt.id,
+      dt.dialplan_app_value,
+      dt.dialplan_template_effect,
+      dt.dialplan_app_id,
+      da.application_name dialplan_app_name,
+      dt.dialplan_template_class_id,
+      sd.dic_name dialplan_template_class_name
+    FROM
+      dialplan_template dt
+      LEFT JOIN dialplan_application da ON dt.dialplan_app_id = da.id
+      LEFT JOIN sys_dictionary sd ON dt.dialplan_template_class_id = sd.id
+    <where>
+      <if test="dialplanTemplateBO.dialplanAppId != null">
+        AND dt.dialplan_app_id = #{dialplanTemplateBO.dialplanAppId}
+      </if>
+      <if test="dialplanTemplateBO.dialplanTemplateClassId != null">
+        AND dt.dialplan_template_class_id = #{dialplanTemplateBO.dialplanTemplateClassId}
+      </if>
+    </where>
+  </select>
+</mapper>

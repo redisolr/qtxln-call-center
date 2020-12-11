@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qtxln.mapper.CallCenterSkillGroupAgentMapper">
+
+  <select id="listPageSkillGroupAgent" resultType="com.qtxln.model.entity.CallCenterSkillGroupAgent">
+    SELECT
+      sga.id,
+      sga.agent_name,
+      sg.skill_group_name,
+      e.extension_name,
+      e.extension_number,
+      sga.call_time_out,
+      sga.description
+    FROM
+      call_center_skill_group_agent sga
+      LEFT JOIN call_center_skill_group sg ON sga.skill_group_id = sg.id
+      LEFT JOIN call_center_extension e ON sga.extension_id = e.id
+      <where>
+        <if test="callCenterSkillGroupAgentBO.agentName != null">
+          AND sga.agent_name like CONCAT('%', #{callCenterSkillGroupAgentBO.agentName},'%')
+        </if>
+        <if test="callCenterSkillGroupAgentBO.skillGroupId != null">
+          AND sga.skill_group_id = #{callCenterSkillGroupAgentBO.skillGroupId}
+        </if>
+        <if test="callCenterSkillGroupAgentBO.extensionId != null">
+          AND sga.extension_id = #{callCenterSkillGroupAgentBO.extensionId}
+        </if>
+      </where>
+  </select>
+
+  <select id="getSkillGroupNameByAgent" resultType="com.qtxln.model.entity.CallCenterSkillGroupAgent" parameterType="java.lang.String">
+    SELECT
+      sga.id,
+      sga.agent_name,
+      sg.skill_group_name
+    FROM
+      `call_center_skill_group_agent` sga
+      LEFT JOIN call_center_skill_group sg ON sga.skill_group_id = sg.id
+      WHERE sga.agent_name = #{agentName}
+  </select>
+  
+</mapper>

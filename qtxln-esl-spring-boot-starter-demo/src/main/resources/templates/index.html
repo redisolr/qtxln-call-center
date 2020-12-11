@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>fs</title>
+  <link rel="stylesheet" type="text/css" href="../static/iview.css">
+  <script type="text/javascript" src="../static/vue.js"></script>
+  <script type="text/javascript" src="../static/iview.js"></script>
+  <script type="text/javascript" src="../static/jquery.min.js"></script>
+  <script type="text/javascript" src="../static/jssip-3.4.4.js"></script>
+  <script type="text/javascript" src="../static/socket.io.js"></script>
+  <script type="text/javascript" src="../static/rxjs.umd.min.js"></script>
+</head>
+<body>
+<div id="app">
+  <Row type="flex" justify="center" style="padding-top: 20px;">
+    <Col span="24">
+    <h1>fs-jssip-demo</h1></Col>
+  </Row>
+  <div style="padding: 20px 250px 0 250px;">
+    <Tabs value="name1">
+      <tab-pane label="分机" name="name1">
+        <i-form :model="formItem" :rules="ruleInline" inline>
+          <Form-item prop="user">
+            <i-input type="text" v-model="formItem.user" placeholder="Name">
+            <Icon type="ios-person-outline" slot="prepend"></Icon>
+            </i-input>
+          </Form-item>
+          <Form-item prop="password">
+            <i-input type="password" v-model="formItem.password" placeholder="Password">
+            <Icon type="ios-lock-outline" slot="prepend"></Icon>
+            </i-input>
+          </Form-item>
+          <Form-item>
+            <i-button type="primary" @click="sipRegister()">{{loginName}}</i-button>
+            <i-button type="primary" :disabled="loginName == '登录'" @click="ready()">{{readyName}}</i-button>
+
+
+            <i-button type="success" :disabled="isCall" @click="answer()">接听</i-button>
+            <i-button type="success" :disabled="isHold" @click="hold()">保持</i-button>
+            <i-button type="success" :disabled="isAnswer" @click="hangUp()">挂断</i-button>
+            <i-button type="success" :disabled="isTransfer" @click="popUpDialing('transfer')">转接</i-button>
+            <i-button type="success" :disabled="isPopScreen" @click="popScreen()">弹屏</i-button>
+
+
+            <i-button type="success" @click="popUpDialing('dial')">拨打</i-button>
+
+          </Form-item>
+          <Form-item>
+            <Tag :color="tagColor" >{{callText}}</Tag>
+            <Tag color="cyan" v-if="called">{{calledText}}</Tag>
+          </Form-item>
+
+          <Card>
+            事件列表:
+            <i-table style="margin-top: 10px;" height="500" :columns="eventColumns" :data="eventList"></i-table>
+          </Card>
+        </i-form>
+      </tab-pane>
+      <tab-pane label="已登录分机" name="name2">
+        <Card>
+          登录(注册)分机:
+          <i-table style="margin-top: 10px;" height="500" :columns="extensionColumns" :data="extensionList"></i-table>
+        </Card>
+      </tab-pane>
+      <tab-pane label="查看数据" name="name3">
+
+      </tab-pane>
+    </Tabs>
+
+    <Modal
+        v-model="modal"
+        draggable scrollable
+        width="180"
+        title="拨打号码"
+        @on-ok="dial"
+        @on-cancel="cancel">
+
+      <div style="color:#f60;text-align:center">
+        <i-input v-model="dialNumber"></i-input>
+        <Button-Group>
+          <div style="margin-top: 5px;">
+            <i-button @click="selectNumber('1')">1</i-button>
+            <i-button @click="selectNumber('2')">2</i-button>
+            <i-button @click="selectNumber('3')">3</i-button>
+          </div>
+          <div style="margin-top: 5px;">
+            <i-button @click="selectNumber('4')">4</i-button>
+            <i-button @click="selectNumber('5')">5</i-button>
+            <i-button @click="selectNumber('6')">6</i-button>
+          </div>
+          <div style="margin-top: 5px;">
+            <i-button @click="selectNumber('7')">7</i-button>
+            <i-button @click="selectNumber('8')">8</i-button>
+            <i-button @click="selectNumber('9')">9</i-button>
+          </div>
+          <div style="margin-top: 5px;">
+            <i-button @click="selectNumber('*')">*</i-button>
+            <i-button @click="selectNumber('0')">0</i-button>
+            <i-button @click="selectNumber('#')">#</i-button>
+          </div>
+        </Button-Group>
+      </div>
+    </Modal>
+
+      <Modal
+          v-model="popScreenModal"
+          draggable scrollable
+          width="200"
+          title="来电号码"
+          @on-ok="popScreenOk"
+          @on-cancel="popScreenCancel">
+        <p>通话号码:{{callNumber}}</p>
+    </Modal>
+  </div>
+
+</div>
+<script>
+  let softPhoneUA;
+  let current = null;
+  const outgoingSession = null;
+  let incomingSession = null;
+  let currentSession = null;
+  let eventSocket = null;
+  let wss = true;
+  let constraints = {
+    audio: true,
+    video: false
+  };
+  let localStream = null;
+
+  new Vue({
+    el: '#app',
+    data: {
+      formItem: {
+        user: '199301',
+        password: 'zgy12368'
+      },
+      ruleInline: {
+        user: [
+          { required: true, message: '请输入分机号', trigger: 'blur' }
+        ],
+        password: [
+          { required: true, message: '请输入密码', trigger: 'blur' }
+        ]
+      },
+      eventColumns: [
+        {
+          title: '事件名',
+          key: 'name'
+        },
+        {
+          title: '状态',
+          key: 'state'
+        },
+        {
+          title: '时间',
+          key: 'date'
+        }
+      ],
+      eventList: [],
+      extensionColumns: [
+        {
+          title: '分机名',
+          key: 'name'
+        },
+        {
+          title: '状态',
+          key: 'state'
+        },
+        {
+          title: '注册时间',
+          key: 'time'
+        }
+      ],
+      extensionList: [],
+      loginName: '登录',
+      readyName: '未就绪',
+      isCall: true,
+      isAnswer: true,
+      isHold: true,
+      isTransfer: true,
+      isPopScreen: true,
+      modal: false,
+      dialNumber: '',
+      popScreenModal: false,
+      callNumber: '',
+
+      tagColor: 'red',
+      callText: '分机未登录',
+      called: false,
+      calledText: '',
+      dialType: ''
+    },
+    methods: {
+      captureLocalMedia: function() {
+        console.info('Requesting local video & audio');
+        let _this = this;
+        navigator.getUserMedia(constraints,
+            function(stream) {
+              console.info('Received local media stream');
+              localStream = stream;
+            },
+            function(e){
+          alert('getUserMedia() error: ' + e.name);
+        });
+      },
+
+
+      sipRegister: function() {
+        if (this.loginName === '退出') {
+          this.logout();
+          return;
+        }
+        let _this = this;
+        let extension = this.formItem.user;
+        let password = this.formItem.password;
+        //let address = 't-12368hotline.aegis-info.com';
+        let address = '192.168.10.9';
+        //let address = '12368hotline.aegis-info.com';
+        let port = '7443';
+
+        let sipUri = 'sip:' + extension + '@' + address + ';transport=' + (wss === true ? 'wss' : 'ws');
+        let wsUri = (wss === true ? 'wss://' : 'ws://') + address + ':' + port;
+
+        let socket = new JsSIP.WebSocketInterface(wsUri);
+
+        let configuration = {
+          // 表示信令服务器的连接集合,及可以注册多个信令服务器,必传参数
+          sockets: [socket],
+          // fs服务器地址
+          outbound_proxy_set: wsUri,
+          // 注册用户的SIP地址,必传参数
+          uri: sipUri,
+          // 连接密码
+          password: password,
+          // 分机号
+          display_name: extension,
+          // 是否直接注册
+          register: true,
+          // 无应答超时时间 单位秒 默认60秒
+          no_answer_timeout: 600,
+          // 用户注册有效时间 单位秒 默认600秒
+          register_expires: 300,
+          // 只是要在联系人头字段中使用的联系人URI的字符串,给定的URI主机将用作Via header host参数
+          contact_uri: sipUri,
+          // 指示JsSIP用户代理是否应在启动时自动注册
+          session_timers: false, //启用会话定时器,默认值是true。
+          user_agent: 'QT WebRTC v1.0'
+        };
+        // 配置创建user agent
+        softPhoneUA = new JsSIP.UA(configuration);
+        /**
+         * 事件监听 start
+         */
+        // SIP注册事件
+        // 注册成功时触发
+        softPhoneUA.on('registered', function(data) {
+          // 回调,登录完成
+          let event = {
+            'name': 'jssip分机注册',
+            'state': data.response.status_code + ' ' +data.response.reason_phrase,
+            'date': new Date().toLocaleString(),
+            'cellClassName': {
+              'name': 'table-info-cell-js-sip'
+            }
+          }
+          _this.eventList.push(event);
+          let extensionInfo = {
+            'name': extension,
+            'state': data.response.status_code + ' ' +data.response.reason_phrase,
+            'date': new Date().toLocaleString(),
+          }
+          _this.extensionList.push(extensionInfo);
+
+          //  注册成功以后,再进行分机登录
+          if (data.response.reason_phrase === 'OK') {
+            _this.login();
+          }
+        });
+        // 注销
+        softPhoneUA.on('unregistered', function(data) {
+          console.log("unregistered", data);
+        });
+        // 注册失败
+        softPhoneUA.on('registrationFailed', function(data) {
+
+          console.log('registrationFailed, ', data);
+        });
+        // 注册超时
+        softPhoneUA.on('registrationExpiring', function() {
+          softPhoneUA.register();
+          //console.log('registrationFailed');
+        });
+
+
+        // 新的来电或去电事件
+        softPhoneUA.on('newRTCSession', function(data){
+          console.log('newRTCSession - ', data)
+          //console.log(data.request)
+
+          // 通话呼入
+          if (data.originator === 'remote') {
+            incomingSession = data.session;
+
+            let callInfo = data.request.getHeader('Call-Info');
+            let requestData = data.request.data;
+            // _this.isCall = false;
+            // _this.isAnswer = false;
+            // _this.isTransfer = false;
+            // _this.isPopScreen = false;
+            if (callInfo != null && callInfo === '<answer-after=0>' && requestData != null && requestData.indexOf('intercom') > 0) {
+              data.session.answer({
+                'mediaConstraints': constraints,
+                'mediaStream': null
+              });
+            } else {
+              _this.isCall = false;
+              _this.isAnswer = false;
+              _this.isTransfer = false;
+              _this.isPopScreen = false;
+            }
+          }
+
+          // if (data.originator === 'remote') {
+          //   console.info("incomingSession, answer the call----------------------");
+          //   incomingSession = data.session;
+          //   data.session.answer({
+          //     'mediaConstraints': {
+          //       'audio': true,
+          //       'video': false,
+          //       mandatory: {maxWidth: 640, maxHeight: 360}
+          //     }, 'mediaStream': localStream
+          //   });
+          // } else {
+          //   console.info("outgoingSession");
+          //   outgoingSession = data.session;
+          //   outgoingSession.on('connecting', function (data) {
+          //     console.info('onConnecting - ', data.request);
+          //     currentSession = outgoingSession;
+          //     outgoingSession = null;
+          //   });
+          // }
+          //  当呼叫被接受时触发
+          data.session.on('accepted', function (data) {
+            console.info('onAccepted - ', data);
+            if (data.originator === 'remote' && currentSession == null) {
+                  currentSession = incomingSession;
+              incomingSession = null;
+              console.info("setCurrentSession - ", currentSession);
+            }
+          });
+          // 确认呼叫后触发
+          data.session.on('confirmed', function (data) {
+            console.info('onConfirmed - ', data);
+            if (data.originator === 'remote' && currentSession == null) {
+              currentSession = incomingSession;
+              incomingSession = null;
+              console.info("setCurrentSession - ", currentSession);
+            }
+          });
+          data.session.on('sdp', function (data) {
+            //console.info('onSDP, type - ', data.type, ' sdp - ', data.sdp);
+          });
+          // 在建立的呼叫结束时触发
+          data.session.on('ended', function(data) {
+            console.info("ended - ", currentSession);
+            currentSession = null;
+            incomingSession = null;
+            //resp = true;
+          });
+          // 在接收或生成对INVITE请求的1XX SIP类响应（> 100）时触发
+          data.session.on('progress', function (data) {
+            if (data.originator === 'remote') {
+              console.info('onProgress, response - ', data.response);
+            }
+          });
+          // 一旦RTCPeerConnection创建基础就触发
+          data.session.on('peerconnection', function (data) {
+            console.info('onPeerconnection - ', data.peerconnection);
+            data.peerconnection.onaddstream = function(ev) {
+              console.info('onaddstream from remote ----------- ', ev);
+              //videoView.src = URL.createObjectURL(ev.stream);
+            };
+          });
+        });
+
+        // 新的传入或传出IM消息事件
+        softPhoneUA.on('newMessage', function(data){
+          if (data.originator === 'local') {
+            console.info('onNewMessage , OutgoingRequest - ', data.request);
+          } else {
+            console.info('onNewMessage , IncomingRequest - ', data.request);
+          }
+
+        });
+        softPhoneUA.start();
+      },
+      initWebSocket: function() {
+        let hostName = '192.168.10.101';
+        //let hostName = '127.0.0.1';
+        let port = '7890';
+        let options = {
+          query: 'extension=' + this.formItem.user
+        };
+        let _this = this;
+        eventSocket = io.connect('http://' + hostName + ':' + port, options);
+        // 连接
+        eventSocket.on('connect', function() {
+          _this.addEventList('socket.io-连接', '成功');
+          _this.getAgentStatus();
+        })
+        // 断开连接
+        eventSocket.on('disconnect', function() {
+          console.log("断开连接")
+        })
+        // 登录结果监听
+        eventSocket.on('login', function(data) {
+          _this.addEventList('登录', data);
+          _this.loginName = '退出';
+
+          _this.tagColor = 'cyan';
+          _this.callText = '分机: ' + _this.formItem.user + ' 登录成功';
+          _this.called = false;
+
+        })
+        // 坐席信息
+        eventSocket.on('status', function(data) {
+          current = data;
+          console.log('坐席信息: ' + JSON.stringify(data))
+          if (data.eventName === 'CHANNEL_HANGUP_COMPLETE') {
+            _this.isCall = true;
+            _this.isAnswer = true;
+            _this.isHold = true;
+            _this.isTransfer = true;
+            _this.isPopScreen = true;
+            eventSocket.emit('basic', _this.getCommand('noReady'));
+
+            _this.tagColor = 'cyan';
+            _this.callText = '分机: ' + _this.formItem.user + ' 登录成功';
+            _this.called = false;
+
+            if (currentSession != null) {
+              currentSession.terminate({
+                'mediaConstraints': constraints,
+                'mediaStream': null
+              });
+              currentSession = null;
+            }
+
+          }
+        })
+        // 就绪结果监听
+        eventSocket.on('ready', function(data) {
+          _this.addEventList('就绪', data);
+          _this.readyName = '已就绪';
+        })
+        // 登录结果监听
+        eventSocket.on('noReady', function(data) {
+          _this.addEventList('未就绪', data);
+          _this.readyName = '未就绪';
+        })
+        // 退出结果监听
+        eventSocket.on('logout', function(data) {
+          console.log(data)
+          _this.addEventList('退出', data);
+          _this.loginName = '登录';
+          _this.readyName = '未就绪';
+
+          _this.tagColor = 'red';
+          _this.callText = '分机未登录';
+
+        })
+        eventSocket.on('agentStatus', function(data) {
+          //_this.addEventList('坐席状态', data);
+          //_this.loginName = '登录';
+          //_this.readyName = '未就绪';
+          console.log('坐席状态: ' + data)
+        })
+
+      },
+      /**
+       * 登录
+       */
+      login: function() {
+        eventSocket.emit('basic', this.getCommand('login'));
+      },
+      /**
+       * 就绪
+       */
+      ready: function() {
+        if (this.readyName === '未就绪') {
+          if (eventSocket != null) {
+            eventSocket.emit('basic', this.getCommand('ready'));
+          }
+        } else {
+          if (eventSocket != null) {
+            eventSocket.emit('basic', this.getCommand('noReady'));
+          }
+        }
+      },
+      /**
+       * 退出
+       */
+      logout: function() {
+        eventSocket.emit('basic', this.getCommand('logout'));
+        eventSocket.disconnect();
+        softPhoneUA.unregister();
+        softPhoneUA.stop();
+      },
+      /**
+       * 获取坐席状态
+       */
+      getAgentStatus: function() {
+        let _this = this;
+        setInterval(function() {
+            eventSocket.emit('basic', _this.getCommand('agentStatus'));
+            //eventSocket.emit('ping');
+        }, 3000);
+      },
+
+
+      /**
+       * 接听
+       */
+      answer: function() {
+        this.isCall = true;
+        this.isHold = false;
+        if (incomingSession != null) {
+          console.log("执行了jssip")
+          incomingSession.answer({
+            'mediaConstraints': constraints,
+            'mediaStream': localStream
+          });
+        } else {
+          console.log("执行了socket.io")
+          eventSocket.emit('call', this.getCommand('answer'));
+        }
+        this.tagColor = 'cyan';
+        this.callText = '主叫号码: ' + current.callerAni;
+        this.called = true;
+        this.calledText = '被叫号码: ' + this.dialNumber;
+
+        // 弹屏
+        this.popScreen();
+      },
+      hold: function() {
+        eventSocket.emit('call', this.getCommand('hold'));
+      },
+      /**
+       * 挂断
+       */
+      hangUp: function() {
+        this.isCall = true;
+        this.isAnswer = true;
+        this.isHold = true;
+        this.isTransfer = true;
+        this.isPopScreen = true;
+        if (currentSession != null) {
+          console.log("执行了jssip")
+          currentSession.terminate({
+            'mediaConstraints': constraints,
+            'mediaStream': null
+          });
+          currentSession = null;
+        }else {
+          console.log("执行了socket.io")
+          eventSocket.emit('call', this.getCommand('hangUp'));
+        }
+        this.ready();
+        this.tagColor = 'cyan';
+        this.callText = '分机: ' + this.formItem.user + ' 登录成功';
+        this.called = false;
+        this.readyName = '未就绪';
+
+      },
+      /**
+       * 拨打
+       */
+      dial: function() {
+        if (this.dialType === 'dial') {
+          this.isAnswer = false;
+          this.isHold = false;
+          this.isTransfer = false;
+          this.isPopScreen = false;
+          eventSocket.emit('call', this.getCommand('dial'));
+
+          this.tagColor = 'cyan';
+          this.callText = '主叫号码: ' + this.formItem.user;
+          this.called = true;
+          this.calledText = '被叫号码: ' + this.dialNumber;
+        } else if (this.dialType === 'transfer') {
+          eventSocket.emit('call', this.getCommand('transfer'));
+        }
+
+
+      },
+
+      popUpDialing(type) {
+        this.modal = true;
+        this.dialType = type;
+      },
+
+
+      selectNumber: function(number) {
+        this.dialNumber += number;
+        console.log(number);
+      },
+
+      popScreen: function() {
+        console.log("弹屏:")
+        console.log(current);
+        console.log(JSON.stringify(current));
+        //this.callNumber = this.dialNumber;
+        this.callNumber = current.callerAni;
+        this.popScreenModal = true;
+      },
+      popScreenOk() {
+
+      },
+      popScreenCancel() {
+
+      },
+      cancel () {
+        //this.$Message.info('Clicked cancel');
+      },
+
+      getCommand: function(command) {
+        return {
+          commandName: command,
+          extension: this.formItem.user,
+          addr: '114.115.179.177:8021',
+          current: current,
+          dialNumber: this.dialNumber
+        };
+      },
+      addEventList: function(name, status) {
+        let event = {
+          'name': name,
+          'state': status,
+          'date': new Date().toLocaleString(),
+          'cellClassName': {
+            'name': 'table-info-cell-socket'
+          }
+        }
+        this.eventList.push(event);
+      }
+    },
+    created: function () {
+      this.initWebSocket();
+      //this.captureLocalMedia();
+    }
+  })
+</script>
+
+<style>
+  .ivu-table .table-info-cell-js-sip {
+    background-color: #1e5ca8;
+    color: #fff;
+  }
+  .ivu-table .table-info-cell-socket {
+    background-color: #187;
+    color: #fff;
+  }
+</style>
+</body>
+</html>
