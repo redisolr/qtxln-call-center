@@ -1,10 +1,10 @@
 package com.qtxln.controller;
 
-import com.aegis.fs.component.result.InvokerResult;
-import com.aegis.fs.component.result.ResultExt;
-import com.aegis.fs.model.bo.AgentInfoStatisticsBO;
-import com.aegis.fs.model.vo.AgentInfoStatisticsVO;
-import com.aegis.fs.service.CallStatisticsService;
+import com.qtxln.component.result.InvokerResult;
+import com.qtxln.component.result.ResultExt;
+import com.qtxln.model.bo.AgentInfoStatisticsBO;
+import com.qtxln.model.vo.AgentInfoStatisticsVO;
+import com.qtxln.service.CallStatisticsService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

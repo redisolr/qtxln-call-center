@@ -1,6 +1,6 @@
 package com.qtxln.controller;
 
-import com.aegis.fs.component.constants.websocket.WebsocketConstants;
+import com.qtxln.component.constants.websocket.WebsocketConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 

@@ -1,9 +1,9 @@
 package com.qtxln.controller;
 
 
-import com.aegis.fs.component.result.InvokerResult;
-import com.aegis.fs.component.result.ResultExt;
-import com.aegis.fs.model.vo.UserVO;
+import com.qtxln.component.result.InvokerResult;
+import com.qtxln.component.result.ResultExt;
+import com.qtxln.model.vo.UserVO;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;

@@ -1,10 +1,10 @@
 package com.qtxln.controller;
 
-import com.aegis.fs.component.result.InvokerResult;
-import com.aegis.fs.component.result.ResultExt;
-import com.aegis.fs.model.bo.FileBO;
-import com.aegis.fs.model.vo.FileVO;
-import com.aegis.fs.service.CommonService;
+import com.qtxln.component.result.InvokerResult;
+import com.qtxln.component.result.ResultExt;
+import com.qtxln.model.bo.FileBO;
+import com.qtxln.model.vo.FileVO;
+import com.qtxln.service.CommonService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;

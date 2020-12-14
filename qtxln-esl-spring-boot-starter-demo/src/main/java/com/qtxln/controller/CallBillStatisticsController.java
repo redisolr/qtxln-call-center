@@ -1,13 +1,13 @@
 package com.qtxln.controller;
 
 
-import com.aegis.fs.component.result.InvokerResult;
-import com.aegis.fs.component.result.ResultExt;
-import com.aegis.fs.model.bo.CallBillStatisticsBO;
-import com.aegis.fs.model.bo.CallDistributionBO;
-import com.aegis.fs.model.vo.CallBillStatisticsVO;
-import com.aegis.fs.model.vo.CallDistributionVO;
-import com.aegis.fs.service.CallBillStatisticsService;
+import com.qtxln.component.result.InvokerResult;
+import com.qtxln.component.result.ResultExt;
+import com.qtxln.model.bo.CallBillStatisticsBO;
+import com.qtxln.model.bo.CallDistributionBO;
+import com.qtxln.model.vo.CallBillStatisticsVO;
+import com.qtxln.model.vo.CallDistributionVO;
+import com.qtxln.service.CallBillStatisticsService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

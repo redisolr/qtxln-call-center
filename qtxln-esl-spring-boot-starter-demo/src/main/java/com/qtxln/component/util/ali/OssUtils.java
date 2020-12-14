@@ -23,8 +23,8 @@ public class OssUtils {
   }
 
   private static final String END_POINT = "http://oss-cn-beijing.aliyuncs.com";
-  private static final String ACCESS_KEY_ID = "LTAIi11bzO1F3IWm";
-  private static final String ACCESS_KEY_SECRET = "g1JRyVRGz5AlKZ6YwyPYFEmGM3aRlj";
+  private static final String ACCESS_KEY_ID = "";
+  private static final String ACCESS_KEY_SECRET = "";
   private static final String BUCKET_NAME_DEFAULT = "free-switch";
 
   public static String upload(MultipartFile file, String fileName) {

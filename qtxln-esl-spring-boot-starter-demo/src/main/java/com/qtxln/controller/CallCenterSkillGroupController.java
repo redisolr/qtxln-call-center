@@ -1,13 +1,13 @@
 package com.qtxln.controller;
 
 
-import com.aegis.fs.component.result.InvokerPageResult;
-import com.aegis.fs.component.result.InvokerResult;
-import com.aegis.fs.component.result.Pager;
-import com.aegis.fs.component.result.ResultExt;
-import com.aegis.fs.model.bo.CallCenterSkillGroupBO;
-import com.aegis.fs.model.vo.CallCenterSkillGroupVO;
-import com.aegis.fs.service.CallCenterSkillGroupService;
+import com.qtxln.component.result.InvokerPageResult;
+import com.qtxln.component.result.InvokerResult;
+import com.qtxln.component.result.Pager;
+import com.qtxln.component.result.ResultExt;
+import com.qtxln.model.bo.CallCenterSkillGroupBO;
+import com.qtxln.model.vo.CallCenterSkillGroupVO;
+import com.qtxln.service.CallCenterSkillGroupService;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.baomidou.mybatisplus.core.metadata.IPage;

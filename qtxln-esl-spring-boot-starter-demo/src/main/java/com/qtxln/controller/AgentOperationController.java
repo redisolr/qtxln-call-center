@@ -1,9 +1,9 @@
 package com.qtxln.controller;
 
-import com.aegis.fs.component.result.InvokerResult;
-import com.aegis.fs.component.result.ResultExt;
-import com.aegis.fs.model.vo.AgentOperationVO;
-import com.aegis.fs.service.AgentOperationService;
+import com.qtxln.component.result.InvokerResult;
+import com.qtxln.component.result.ResultExt;
+import com.qtxln.model.vo.AgentOperationVO;
+import com.qtxln.service.AgentOperationService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
