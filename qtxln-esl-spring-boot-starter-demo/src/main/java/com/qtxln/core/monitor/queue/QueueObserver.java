@@ -1,10 +1,10 @@
 package com.qtxln.core.monitor.queue;
 
-import com.aegis.fs.client.SocketClient;
-import com.aegis.fs.core.monitor.AgentInfoSubject;
-import com.aegis.fs.model.core.monitor.QueueMonitor;
-import com.aegis.fs.model.entity.CallCenterSkillGroupAgent;
-import com.aegis.fs.model.esl.AgentInfo;
+import com.qtxln.client.SocketClient;
+import com.qtxln.core.monitor.AgentInfoSubject;
+import com.qtxln.model.core.monitor.QueueMonitor;
+import com.qtxln.model.entity.CallCenterSkillGroupAgent;
+import com.qtxln.model.esl.AgentInfo;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Table;
 import lombok.extern.slf4j.Slf4j;

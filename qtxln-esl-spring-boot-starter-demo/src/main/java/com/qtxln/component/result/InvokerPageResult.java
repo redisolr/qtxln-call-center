@@ -1,6 +1,6 @@
 package com.qtxln.component.result;
 
-import com.aegis.fs.component.util.ResponsePropsUtils;
+import com.qtxln.component.util.ResponsePropsUtils;
 
 import javax.validation.constraints.NotNull;
 

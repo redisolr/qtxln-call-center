@@ -1,11 +1,11 @@
 package com.qtxln.core.monitor.agent;
 
-import com.aegis.fs.component.util.ApplicationContextUtils;
-import com.aegis.fs.core.monitor.AgentInfoSubject;
-import com.aegis.fs.model.entity.AgentStateRecord;
-import com.aegis.fs.model.entity.CallCenterSkillGroupAgent;
-import com.aegis.fs.model.esl.AgentInfo;
-import com.aegis.fs.service.AgentStateRecordService;
+import com.qtxln.component.util.ApplicationContextUtils;
+import com.qtxln.core.monitor.AgentInfoSubject;
+import com.qtxln.model.entity.AgentStateRecord;
+import com.qtxln.model.entity.CallCenterSkillGroupAgent;
+import com.qtxln.model.esl.AgentInfo;
+import com.qtxln.service.AgentStateRecordService;
 import com.google.common.collect.Table;
 
 import java.util.Observable;

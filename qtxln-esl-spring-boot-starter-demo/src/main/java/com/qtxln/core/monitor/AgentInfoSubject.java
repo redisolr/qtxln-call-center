@@ -1,7 +1,7 @@
 package com.qtxln.core.monitor;
 
-import com.aegis.fs.model.entity.CallCenterSkillGroupAgent;
-import com.aegis.fs.model.esl.AgentInfo;
+import com.qtxln.model.entity.CallCenterSkillGroupAgent;
+import com.qtxln.model.esl.AgentInfo;
 import com.google.common.collect.Table;
 import lombok.Getter;
 

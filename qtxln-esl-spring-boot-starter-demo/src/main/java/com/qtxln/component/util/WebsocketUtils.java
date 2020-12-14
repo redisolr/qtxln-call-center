@@ -1,6 +1,6 @@
 package com.qtxln.component.util;
 
-import com.aegis.fs.component.constants.websocket.WebsocketConstants;
+import com.qtxln.component.constants.websocket.WebsocketConstants;
 
 import javax.websocket.Session;
 

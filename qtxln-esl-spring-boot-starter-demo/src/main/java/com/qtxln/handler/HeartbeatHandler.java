@@ -1,10 +1,10 @@
 package com.qtxln.handler;
 
-import com.aegis.freeswitch.esl.spring.boot.starter.annotation.EslEventName;
-import com.aegis.freeswitch.esl.spring.boot.starter.handler.EslEventHandler;
-import com.aegis.freeswitch.esl.transport.event.EslEvent;
-import com.aegis.fs.component.util.WebsocketUtils;
-import com.aegis.fs.model.handler.HeartBeatField;
+import com.qtxln.esl.spring.boot.starter.annotation.EslEventName;
+import com.qtxln.esl.spring.boot.starter.handler.EslEventHandler;
+import com.qtxln.esl.transport.event.EslEvent;
+import com.qtxln.component.util.WebsocketUtils;
+import com.qtxln.model.handler.HeartBeatField;
 import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

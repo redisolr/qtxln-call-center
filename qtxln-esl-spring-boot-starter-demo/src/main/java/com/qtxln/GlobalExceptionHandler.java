@@ -1,9 +1,9 @@
 package com.qtxln;
 
-import com.aegis.fs.component.exception.BaseException;
-import com.aegis.fs.component.result.InvokerResult;
-import com.aegis.fs.component.result.ResultCode;
-import com.aegis.fs.component.result.ResultExt;
+import com.qtxln.component.exception.BaseException;
+import com.qtxln.component.result.InvokerResult;
+import com.qtxln.component.result.ResultCode;
+import com.qtxln.component.result.ResultExt;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;

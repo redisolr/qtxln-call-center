@@ -1,9 +1,9 @@
 package com.qtxln.component.exception;
 
 
-import com.aegis.fs.component.result.InvokerResult;
-import com.aegis.fs.component.result.ResultExt;
-import com.aegis.fs.component.util.ResponsePropsUtils;
+import com.qtxln.component.result.InvokerResult;
+import com.qtxln.component.result.ResultExt;
+import com.qtxln.component.util.ResponsePropsUtils;
 
 /**
  * ResultException

@@ -1,7 +1,7 @@
 package com.qtxln.component.util.cache;
 
 
-import com.aegis.fs.component.util.ApplicationContextUtils;
+import com.qtxln.component.util.ApplicationContextUtils;
 import net.sf.ehcache.Ehcache;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;

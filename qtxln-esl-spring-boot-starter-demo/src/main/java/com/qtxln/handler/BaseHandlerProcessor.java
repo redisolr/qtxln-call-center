@@ -1,13 +1,13 @@
 package com.qtxln.handler;
 
-import com.aegis.freeswitch.esl.transport.event.EslEvent;
-import com.aegis.fs.component.constants.FreeSwitchEventTypeEnum;
-import com.aegis.fs.component.util.EventHandlerUtils;
-import com.aegis.fs.core.cb.CallBillGenerate;
-import com.aegis.fs.core.monitor.AgentAndQueueMonitor;
-import com.aegis.fs.model.es.ElasticEntity;
-import com.aegis.fs.model.handler.FsEvent;
-import com.aegis.fs.service.es.ElasticSearchService;
+import com.qtxln.esl.transport.event.EslEvent;
+import com.qtxln.component.constants.FreeSwitchEventTypeEnum;
+import com.qtxln.component.util.EventHandlerUtils;
+import com.qtxln.core.cb.CallBillGenerate;
+import com.qtxln.core.monitor.AgentAndQueueMonitor;
+import com.qtxln.model.es.ElasticEntity;
+import com.qtxln.model.handler.FsEvent;
+import com.qtxln.service.es.ElasticSearchService;
 import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
